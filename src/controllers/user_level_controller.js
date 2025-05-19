@@ -55,7 +55,7 @@ const validateRegister = Joi.object({
         });
       }
   
-      const newUserLevel = await Client.create({ id, id_user, id_level });
+      const newUserLevel = await Client.create({ id, time, id_user, id_level });
       res.status(201).json(
         { 
           message:'UserLevel created',
