@@ -55,7 +55,7 @@ const validateRegister = Joi.object({
         });
       }
   
-      const newLevel = await Client.create({ id, name, speed });
+      const newLevel = await Level.create({ id, name, speed });
 
       res.status(201).json(
         { 
@@ -74,7 +74,7 @@ const validateRegister = Joi.object({
   
   const listLevels = async (req, res) => {
     try {
-      const levels = await User.findAll();
+      const levels = await Level.findAll();
       res.status(200).json({ message: 'Levels listed', result: levels });
     } catch (error) {
       res.status(500).json({ message: error.message, result: null });
@@ -91,8 +91,8 @@ const validateRegister = Joi.object({
         return res.status(404).json({ message: 'The level does not exist', result: null });
       }
       
-      const newLevel = await Level.update({ name, email, speed });
-      res.status(200).json({ message: 'User information updated', result: newLevel });
+      const newLevel = await level.update({ name, speed });
+      res.status(200).json({ message: 'Level information updated', result: newLevel });
     } catch (error) {
       res.status(500).json({ message: error.message, result: null });
     }
@@ -101,13 +101,13 @@ const validateRegister = Joi.object({
   const deleteLevel = async (req, res) => {
     try {
       const { id } = req.params;
-      const user = await Level.findByPk(id);
+      const level = await Level.findByPk(id);
       
-      if (!user) {
+      if (!level) {
         return res.status(404).json({ message: 'The level does not exist', result: null });
       }
       
-      const deleteLevel = await Level.destroy(id);
+      const deleteLevel = await level.destroy(id);
       res.status(200).json({ message: 'Level information deleted', result: deleteLevel });
     } catch (error) {
       res.status(500).json({ message: error.message, result: null });

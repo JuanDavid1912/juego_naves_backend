@@ -50,12 +50,12 @@ const validateRegister = Joi.object({
       if (userExist) {
         return res.status(400).json(
         { 
-          message: 'the user already exists',
+          message: 'The user already exists',
           result: null 
         });
       }
   
-      const newUser = await Client.create({ id, name, password });
+      const newUser = await User.create({ id, name, password });
       res.status(201).json(
         { 
           message:'User created',
@@ -74,10 +74,12 @@ const validateRegister = Joi.object({
   const listUsers = async (req, res) => {
     try {
       const users = await User.findAll();
-      if(!users){
+      if(users.length === 0){
         res.status(200).json({ message: 'There are no users listed', result: users });
       }
-      res.status(200).json({ message: 'Users listed', result: users });
+      else{
+        res.status(200).json({ message: 'Users listed', result: users });
+      }
     } catch (error) {
       res.status(500).json({ message: error.message, result: null });
     }
@@ -86,14 +88,14 @@ const validateRegister = Joi.object({
   const updateUser = async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, email, password } = req.body;
+      const { name, password } = req.body;
       const user = await User.findByPk(id);
       
       if (!user) {
         return res.status(404).json({ message: 'The user does not exist', result: null });
       }
       
-      const newUser = await Client.update({ name, email, password });
+      const newUser = await user.update({ name, password });
       res.status(200).json({ message: 'User information updated', result: newUser });
     } catch (error) {
       res.status(500).json({ message: error.message, result: null });
@@ -109,7 +111,7 @@ const validateRegister = Joi.object({
         return res.status(404).json({ message: 'The user does not exist', result: null });
       }
       
-      const deleteUser = await User.destroy(id);
+      const deleteUser = await user.destroy(id);
       res.status(200).json({ message: 'User information deleted', result: deleteUser });
     } catch (error) {
       res.status(500).json({ message: error.message, result: null });

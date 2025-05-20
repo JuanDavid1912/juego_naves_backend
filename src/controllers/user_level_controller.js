@@ -54,13 +54,12 @@ const validateRegister = Joi.object({
           result: null 
         });
       }
-  
-      const newUserLevel = await Client.create({ id, time, id_user, id_level });
+      const newUserLevel = await UserLevel.create({ id, id_user, id_level });
       res.status(201).json(
         { 
           message:'UserLevel created',
           result: {
-            id:newUser.id,
+            id:newUserLevel.id,
             id_user:newUserLevel.id_user,
             id_level:newUserLevel.id_level,
             validationErrors: ''
@@ -73,8 +72,8 @@ const validateRegister = Joi.object({
   
   const listUsersLevels = async (req, res) => {
     try {
-      const users = await UserLevel.findAll();
-      res.status(200).json({ message: 'UsersLevels listed', result: users });
+      const usersLevels = await UserLevel.findAll();
+      res.status(200).json({ message: 'UsersLevels listed', result: usersLevels });
     } catch (error) {
       res.status(500).json({ message: error.message, result: null });
     }
@@ -90,7 +89,7 @@ const validateRegister = Joi.object({
         return res.status(404).json({ message: 'The userLevel does not exist', result: null });
       }
       
-      const newUserLevel = await Client.update({ id_user, id_level });
+      const newUserLevel = await userLevel.update({ id_user, id_level });
       res.status(200).json({ message: 'UserLevel information updated', result: newUserLevel });
     } catch (error) {
       res.status(500).json({ message: error.message, result: null });
@@ -106,7 +105,7 @@ const validateRegister = Joi.object({
         return res.status(404).json({ message: 'The userlevel does not exist', result: null });
       }
       
-      const deleteUserLevel = await User.destroy(id);
+      const deleteUserLevel = await userLevel.destroy(id);
       res.status(200).json({ message: 'UserLevel information deleted', result: deleteUserLevel });
     } catch (error) {
       res.status(500).json({ message: error.message, result: null });
