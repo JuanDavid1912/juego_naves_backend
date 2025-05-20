@@ -2,14 +2,14 @@ const {UserLevel} = require('../database/index');
 const Joi = require('joi');
 
 const validateRegister = Joi.object({
-    id: Joi.string().integer().min(1).max(50).required().messages({
+    id: Joi.number().integer().min(1).max(50).required().messages({
         'string.base': 'The name has to be a text.',
         'string.empty': 'The name is mandatory.',
         'string.min': 'The name must have at least {#limit}.',
         'string:max':'The name must have at least {#limit}.',
         'any.required': 'The name is mandatory.'
     }),
-    id_user: Joi.string().integer().min(1).max(50).required().messages({
+    id_user: Joi.string().min(1).max(50).required().messages({
         'string.base': 'The name has to be a text.',
         'string.empty': 'The name is mandatory.',
         'string.min': 'The name must have at least {#limit}.',

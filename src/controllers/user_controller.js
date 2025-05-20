@@ -2,7 +2,7 @@ const {User} = require('../database/index');
 const Joi = require('joi');
 
 const validateRegister = Joi.object({
-    id: Joi.string().integer().min(1).max(50).required().messages({
+    id: Joi.string().min(1).max(50).required().messages({
         'string.base': 'The name has to be a text.',
         'string.empty': 'The name is mandatory.',
         'string.min': 'The name must have at least {#limit}.',
@@ -74,6 +74,9 @@ const validateRegister = Joi.object({
   const listUsers = async (req, res) => {
     try {
       const users = await User.findAll();
+      if(!users){
+        res.status(200).json({ message: 'There are no users listed', result: users });
+      }
       res.status(200).json({ message: 'Users listed', result: users });
     } catch (error) {
       res.status(500).json({ message: error.message, result: null });
