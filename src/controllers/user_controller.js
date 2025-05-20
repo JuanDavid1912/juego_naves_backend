@@ -1,5 +1,6 @@
 const {User} = require('../database/index');
 const Joi = require('joi');
+const { generateToken, verifyToken, hashPassword, comparePassword} = require('../utils/auth');
 
 const validateRegister = Joi.object({
     id: Joi.string().min(1).max(50).required().messages({
@@ -24,6 +25,20 @@ const validateRegister = Joi.object({
         'any.required': 'The name is mandatory.'
     })
   });
+
+  const validateLogin = Joi.object({
+    id: Joi.string().min(1).max(50).required().messages({
+        'string.base': 'The id has to be a text.',
+        'string.empty': 'The id is mandatory.',
+        'any.required': 'The name is mandatory.'
+    }),
+    password: Joi.string().min(2).max(50).required().messages({
+        'string.base': 'The password has to be a text.',
+        'string.empty': 'The password is mandatory.',
+        'any.required': 'The name is mandatory.'
+    })
+  });
+
   
   const registerUser = async (req, res) => {
     try {
@@ -54,12 +69,15 @@ const validateRegister = Joi.object({
           result: null 
         });
       }
-  
-      const newUser = await User.create({ id, name, password });
+      
+      const hashedPassword = await hashPassword(password);
+      const newUser = await User.create({ id, name, hashedPassword });
+      const token = await generateToken(newUser);
       res.status(201).json(
         { 
           message:'User created',
           result: {
+            token:token,
             id:newUser.id,
             name:newUser.name,
             password:newUser.password,
@@ -70,6 +88,46 @@ const validateRegister = Joi.object({
       res.status(400).json({ message: error.message,result: null});
     }
   };
+
+  const loginUser = async (req, res) => {
+    try {
+      const { error } = validateLogin.validate(req.body, { abortEarly: false });
+      
+      if (error) {
+        const errors = error.details.map(detail => detail.message).join('|');
+        return res.status(400).json({
+          menssage: errors,
+          result: null
+        });
+      }
+      
+      const { id, password } = req.body;
+      const user = await User.findOne({
+        where: {
+          id: id
+        },
+      });
+     
+      if (!user) {
+        return res.status(404).json({ message:"The user does not exist", result:null });
+      }
+      
+      const valid = await comparePassword(password, user.password);
+      if (!valid) {
+        return res.status(401).json({ message:"The password is incorrect", result:null });
+      }
+      const token = generateToken(user);
+      res.status(200).json({ mensaje:"Sesion iniciada",
+        resultado: {
+          token: token,
+          id:user.id,
+          name: user.name
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ message:error.message, result:null });
+    }
+};
   
   const listUsers = async (req, res) => {
     try {
@@ -120,6 +178,7 @@ const validateRegister = Joi.object({
   
   module.exports = {
       registerUser,
+      loginUser,
       listUsers,
       updateUser,
       deleteUser
