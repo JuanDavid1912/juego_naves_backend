@@ -17,7 +17,7 @@ const validateRegister = Joi.object({
         'string:max':'The name must have at least {#limit}.',
         'any.required': 'The name is mandatory.'
     }),
-    password: Joi.string().min(2).max(50).required().messages({
+    password: Joi.string().min(2).max(1000).required().messages({
         'string.base': 'The name has to be a text.',
         'string.empty': 'The name is mandatory.',
         'string.min': 'The name must have at least {#limit}.',
@@ -71,7 +71,7 @@ const validateRegister = Joi.object({
       }
       
       const hashedPassword = await hashPassword(password);
-      const newUser = await User.create({ id, name, hashedPassword });
+      const newUser = await User.create({ id, name, password:hashedPassword });
       const token = await generateToken(newUser);
       res.status(201).json(
         { 
@@ -80,7 +80,7 @@ const validateRegister = Joi.object({
             token:token,
             id:newUser.id,
             name:newUser.name,
-            password:newUser.password,
+            password:newUser.hashedPassword,
             validationErrors: ''
           }
       });
@@ -117,8 +117,8 @@ const validateRegister = Joi.object({
         return res.status(401).json({ message:"The password is incorrect", result:null });
       }
       const token = generateToken(user);
-      res.status(200).json({ mensaje:"Sesion iniciada",
-        resultado: {
+      res.status(200).json({ message:"Sesion iniciada",
+        result: {
           token: token,
           id:user.id,
           name: user.name
